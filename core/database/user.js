@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { hash } from '../methods/hash.js'
 
 const userSchema = new mongoose.Schema({
     username: { type: String },
@@ -12,9 +13,10 @@ const userSchema = new mongoose.Schema({
 export const User = mongoose.model('User', userSchema)
 
 export async function create(username, password, email) {
+    const pass = hash(password)
     const user = new User({
         username: username,
-        password: password,
+        password: pass,
         email: email,
     })
     user.save()
