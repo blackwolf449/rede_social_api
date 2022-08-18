@@ -1,3 +1,16 @@
 import mongoose from 'mongoose'
 
-export const connection = await mongoose.connect(process.env.SECRET_URL)
+mongoose.connect(process.env.SECRET_URL)
+
+async function create(username, password, email) {
+    const user = new User({
+        username: username,
+        password: password,
+        email: email,
+        follower: [],
+        following: [],
+        posts: [],
+    })
+    await user.save()
+    return user
+}
