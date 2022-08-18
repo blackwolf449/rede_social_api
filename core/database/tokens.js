@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { hash } from '../methods/hash'
+import { hash } from '../methods/hash.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const tokensSchema = new mongoose.Schema({
@@ -25,6 +25,5 @@ export async function create(userId, timeValid) {
         createDay: date.getDate(),
         lastUpdateDay: date.getDate(),
     })
+    return token
 }
-
-export async function find(field, value) {}

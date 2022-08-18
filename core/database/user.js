@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import { hash } from '../methods/hash.js'
+import { create as createToken } from './tokens.js'
 
 const userSchema = new mongoose.Schema({
     username: { type: String },
@@ -21,4 +22,17 @@ export async function create(username, password, email) {
     })
     user.save()
     return user
+}
+
+export async function login(username, password) {
+    const pass = hash(password)
+    const user = await User.findOne({ username: username, password: pass })
+    if (user == null) return { message: 'invalid username or password' }
+    const tokens = await createToken(user['_id'], 3600)
+    const response = {
+        accessToken: tokens['accessToken'],
+        refreshToken: tokens['refreshToken'],
+        time: tokens['timeValid'],
+    }
+    return response
 }
