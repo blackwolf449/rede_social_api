@@ -1,5 +1,5 @@
 import express from 'express'
-import { create } from '../database/main.js'
+import { create } from '../database/user.js'
 
 const router = new express.Router()
 export { router as UserRouter }
