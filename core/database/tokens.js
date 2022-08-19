@@ -16,13 +16,14 @@ export const Tokens = mongoose.model('tokens', tokensSchema)
 export async function create(userId, timeValid) {
     const exist = Tokens.findOne({ userId: userId })
     const accessToken = uuidv4()
-    const refreshToken = `${accessToken}.${hash(accessToken)}`
+    const refreshToken = uuidv4()
     const date = new Date()
-    if (exist) {
-        const token = Tokens.findOneAndUpdate(
+    if (exist != undefined) {
+        await Tokens.findOneAndUpdate(
             { userId: userId },
             { accessToken: accessToken, refreshToken: refreshToken }
         )
+        const token = await Tokens.findOne({ userId: userId })
         return token
     }
     const token = new Tokens({
@@ -37,16 +38,12 @@ export async function create(userId, timeValid) {
     return token
 }
 
-export async function refresh(refreshToken) {
+export async function refresh(tokenRef) {
     const accessToken = uuidv4()
-    const newRefreshToken = `${accessToken}.${hash(accessToken)}`
-    const tokens = await Tokens.findByIdAndUpdate(
-        { refreshToken: refreshToken },
+    const newRefreshToken = uuidv4()
+    await Tokens.findOneAndUpdate(
+        { refreshToken: tokenRef },
         { accessToken: accessToken, refreshToken: newRefreshToken }
     )
-    return {
-        accessToken: tokens['accessToken'],
-        refreshToken: tokens['refreshToken'],
-        time: tokens['timeValid'],
-    }
+    return await Tokens.findOne({ accessToken: accessToken })
 }

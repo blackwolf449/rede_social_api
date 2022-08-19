@@ -12,3 +12,8 @@ router.post('/access-token', async (req, res) => {
         res.status(200).json(singIn)
     }
 })
+
+router.post('/refresh-token', async (req, res) => {
+    const token = await refresh(req.headers['authorization'].split(' ')[1])
+    res.json(token)
+})
