@@ -47,3 +47,15 @@ export async function refresh(tokenRef) {
     )
     return await Tokens.findOne({ accessToken: accessToken })
 }
+
+export async function authenticate() {
+    return async (req, res, next) => {
+        try {
+            const exist = await Tokens.findOne({
+                accessToken: req.headers['authorization'].split(' ')[1],
+            })
+        } catch (e) {
+            res.json({ message: e })
+        }
+    }
+}
