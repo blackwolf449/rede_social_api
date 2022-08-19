@@ -29,10 +29,9 @@ export async function login(username, password) {
     const user = await User.findOne({ username: username, password: pass })
     if (user == null) return { message: 'invalid username or password' }
     const tokens = await createToken(user['_id'], 3600)
-    const response = {
+    return {
         accessToken: tokens['accessToken'],
         refreshToken: tokens['refreshToken'],
         time: tokens['timeValid'],
     }
-    return response
 }
