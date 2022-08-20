@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import { hash } from '../methods/hash.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const tokensSchema = new mongoose.Schema({
@@ -21,7 +20,11 @@ export async function create(userId, timeValid) {
     if (exist != undefined) {
         await Tokens.findOneAndUpdate(
             { userId: userId },
-            { accessToken: accessToken, refreshToken: refreshToken }
+            {
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                lastUpdateDay: date.toISOString(),
+            }
         )
         const token = await Tokens.findOne({ userId: userId })
         return token
@@ -31,8 +34,8 @@ export async function create(userId, timeValid) {
         accessToken: accessToken,
         refreshToken: refreshToken,
         timeValid: timeValid,
-        createDay: date.getDate(),
-        lastUpdateDay: date.getDate(),
+        createDay: date.toISOString(),
+        lastUpdateDay: date.toISOString(),
     })
     await token.save()
     return token
@@ -49,13 +52,14 @@ export async function refresh(tokenRef) {
 }
 
 export async function authenticate() {
+    const date = new Date(new Date().getTime() + seg * 1000)
     return async (req, res, next) => {
-        try {
-            const exist = await Tokens.findOne({
-                accessToken: req.headers['authorization'].split(' ')[1],
-            })
-        } catch (e) {
-            res.json({ message: e })
-        }
+        const exist = await Tokens.findOne({
+            accessToken: req.headers['authorization'].split(' ')[1],
+        })
+        if (exist == undefined) return badRequest(res, 'Not authorized', 403)
+        const expireDate = exist['lastUpdateDay'].setTime(
+            exist['lastUpdateDay'].getTime + exist['timeValid']
+        )
     }
 }
