@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { badRequest } from '../methods/responses.js'
 import { v4 as uuidv4 } from 'uuid'
 
 const tokensSchema = new mongoose.Schema({
@@ -52,7 +53,6 @@ export async function refresh(tokenRef) {
 }
 
 export async function authenticate() {
-    const date = new Date(new Date().getTime() + seg * 1000)
     return async (req, res, next) => {
         const exist = await Tokens.findOne({
             accessToken: req.headers['authorization'].split(' ')[1],
@@ -61,5 +61,8 @@ export async function authenticate() {
         const expireDate = exist['lastUpdateDay'].setTime(
             exist['lastUpdateDay'].getTime + exist['timeValid']
         )
+        const date = new Date().getTime
+        if (date > expireDate) return badRequest(res, 'Expired token', 403)
+        next()
     }
 }

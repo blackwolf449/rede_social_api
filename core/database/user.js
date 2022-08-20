@@ -35,3 +35,11 @@ export async function login(username, password) {
         time: tokens['timeValid'],
     }
 }
+
+export function get(field, value) {
+    return User.findOne({ [field]: value })
+}
+
+export function getAll(field, value) {
+    return User.find({ [field]: value })
+}
