@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     )
     res.status(200).json(user)
 })
-
-router.get('/', authenticate(), async (req, res) => {
-    res.status(200).json(await getAll(req.body.field, req.body.value))
+router.get('/', authenticate, async (req, res) => {
+    const all = await getAll('username', req.query.username)
+    res.status(200).json(all)
 })
