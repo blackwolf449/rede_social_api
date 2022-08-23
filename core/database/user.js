@@ -27,7 +27,7 @@ export async function create(username, password, email) {
 export async function login(username, password) {
     const pass = hash(password)
     const user = await User.findOne({ username: username, password: pass })
-    if (user == null) return { message: 'invalid username or password' }
+    if (!user) return { message: 'invalid username or password' }
     const tokens = await createToken(user['_id'], 3600)
     return {
         accessToken: tokens['accessToken'],
@@ -40,6 +40,6 @@ export function get(field, value) {
     return User.findOne({ [field]: value })
 }
 
-export function getAll(field, value) {
-    return User.find({ [field]: value })
+export function getAll() {
+    return User.find()
 }

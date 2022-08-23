@@ -11,23 +11,25 @@ const tokensSchema = new mongoose.Schema({
     lastUpdateDay: { type: Date },
 })
 
-export const Tokens = mongoose.model('tokens', tokensSchema)
+const Tokens = mongoose.model('tokens', tokensSchema)
 
 export async function create(userId, timeValid) {
-    const exist = Tokens.findOne({ userId: userId })
+    const exist = await Tokens.findOne({ userId: userId })
     const accessToken = uuidv4()
     const refreshToken = uuidv4()
     const date = new Date()
-    if (exist != undefined) {
-        await Tokens.findOneAndUpdate(
+    if (exist) {
+        const token = await Tokens.findOneAndUpdate(
             { userId: userId },
             {
                 accessToken: accessToken,
                 refreshToken: refreshToken,
                 lastUpdateDay: date.toISOString(),
+            },
+            {
+                new: true,
             }
         )
-        const token = await Tokens.findOne({ userId: userId })
         return token
     }
     const token = new Tokens({
@@ -45,24 +47,30 @@ export async function create(userId, timeValid) {
 export async function refresh(tokenRef) {
     const accessToken = uuidv4()
     const newRefreshToken = uuidv4()
-    await Tokens.findOneAndUpdate(
+    const tokens = await Tokens.findOneAndUpdate(
         { refreshToken: tokenRef },
-        { accessToken: accessToken, refreshToken: newRefreshToken }
+        { accessToken: accessToken, refreshToken: newRefreshToken },
+        { new: true }
     )
-    return await Tokens.findOne({ accessToken: accessToken })
+    return {
+        accessToken: tokens['accessToken'],
+        refreshToken: tokens['refreshToken'],
+    }
 }
 
-export async function authenticate() {
+export function authenticate() {
     return async (req, res, next) => {
         const exist = await Tokens.findOne({
             accessToken: req.headers['authorization'].split(' ')[1],
         })
-        if (exist == undefined) return badRequest(res, 'Not authorized', 403)
-        const expireDate = exist['lastUpdateDay'].setTime(
-            exist['lastUpdateDay'].getTime + exist['timeValid']
-        )
-        const date = new Date().getTime
-        if (date > expireDate) return badRequest(res, 'Expired token', 403)
-        next()
+        if (exist == undefined) badRequest(res, 'Not authorized', 403)
+        else {
+            const expireDate = exist['lastUpdateDay'].setTime(
+                exist['lastUpdateDay'].getTime + exist['timeValid']
+            )
+            const date = new Date().getTime
+            if (expireDate > date) badRequest(res, 'Not authorized', 403)
+            next()
+        }
     }
 }
