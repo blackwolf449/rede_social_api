@@ -74,3 +74,7 @@ export function authenticate() {
         }
     }
 }
+
+export function get(field, value) {
+    return Tokens.findOne({ [field]: value })
+}

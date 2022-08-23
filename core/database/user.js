@@ -43,3 +43,7 @@ export function get(field, value) {
 export function getAll() {
     return User.find()
 }
+
+export function getAndUpdate(objSearch, objUpdate) {
+    return User.findOneAndUpdate(objSearch, objUpdate, { new: true })
+}
