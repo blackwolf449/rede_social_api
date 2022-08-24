@@ -38,10 +38,19 @@ router.post('/follower', authenticate(), async (req, res) => {
     )
     if (!token) return badRequest(res, 'Something is wrong', 400)
     const user = await get('username', req.body.user)
+    const following = await get('userId', token['userId'])
     if (user['posts'].includes(token['userId']))
         return badRequest(res, 'already following', 200)
-    user['posts'].push(token['userId'])
-    await getAndUpdate({ username: req.body.user }, { posts: user['posts'] })
+    following['following'].push(user['_id'])
+    user['follower'].push(token['userId'])
+    await getAndUpdate(
+        { username: req.body.user },
+        { follower: user['follower'] }
+    )
+    await getAndUpdate(
+        { username: following['username'] },
+        { following: following['following'] }
+    )
     res.status(200).json({ message: 'add new follower!' })
 })
 
@@ -50,12 +59,20 @@ router.delete('/follower', authenticate(), async (req, res) => {
         'accessToken',
         req.headers['authorization'].split(' ')[1]
     )
-    if (!token) return badRequest(res, 'Something is wrong', 400)
     const user = await get('username', req.body.user)
+    const following = await get('userId', token['userId'])
     if (!user['posts'].includes(token['userId']))
-        return badRequest(res, "don't following", 200)
-    const index = user['posts'].indexOf(token['userId'])
-    user['posts'].splice(index, 1)
-    await getAndUpdate({ username: req.body.user }, { posts: user['posts'] })
-    res.status(200).json({ message: 'unfollowing' })
+        return badRequest(res, 'already unfolloing', 200)
+    const indexFollowing = following['following'].indexOf(user['_id'])
+    const indexUser = user['follower'].indexOf(token['userId'])
+    following['following'].splice(indexFollowing, 1)
+    user['follower'].splice(indexUser, 1)
+    await getAndUpdate(
+        { username: req.body.user },
+        { follower: user['follower'] }
+    )
+    await getAndUpdate(
+        { username: following['username'] },
+        { following: following['following'] }
+    )
 })
