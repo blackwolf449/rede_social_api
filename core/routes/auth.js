@@ -8,11 +8,9 @@ export { router as AuthRouter }
 
 router.post('/access-token', async (req, res) => {
     const singIn = await login(req.body.username, req.body.password)
-    if (singIn.message) badRequest(res, singIn.message, 400)
-    if (!singIn) res.status(400).json(singIn)
-    else {
-        res.status(200).json(singIn)
-    }
+    if (singIn.message) return badRequest(res, singIn.message, 400)
+    if (!singIn) return res.status(400).json({ message: 'algo deu errado' })
+    res.status(200).json(singIn)
 })
 
 router.post('/refresh-token', async (req, res) => {
