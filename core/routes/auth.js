@@ -1,5 +1,5 @@
 import express from 'express'
-import { refresh } from '../database/tokens.js'
+import { authenticate, refresh } from '../database/tokens.js'
 import { login } from '../database/user.js'
 import { badRequest } from '../methods/responses.js'
 
@@ -16,4 +16,8 @@ router.post('/access-token', async (req, res) => {
 router.post('/refresh-token', async (req, res) => {
     const token = await refresh(req.headers['authorization'].split(' ')[1])
     res.json(token)
+})
+
+router.get('/', authenticate(), async (req, res) => {
+    res.status(200).json({ message: 'authorized' })
 })
