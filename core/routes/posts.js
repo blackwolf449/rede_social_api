@@ -44,5 +44,5 @@ router.get('/likes', authenticate(), async (req, res) => {
         { title: req.query.title },
         { likes: post['likes'] }
     )
-    res.status(200).json(updatePost)
+    res.status(200).json({ message: 'you like that' })
 })
