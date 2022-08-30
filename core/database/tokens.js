@@ -63,13 +63,13 @@ export function authenticate() {
         const exist = await Tokens.findOne({
             accessToken: req.headers['authorization'].split(' ')[1],
         })
-        if (exist == undefined) badRequest(res, 'Not authorized', 403)
+        if (exist == undefined) badRequest(res, 'Not authorized')
         else {
             const expireDate = exist['lastUpdateDay'].setTime(
                 exist['lastUpdateDay'].getTime + exist['timeValid']
             )
             const date = new Date().getTime
-            if (expireDate > date) badRequest(res, 'Not authorized', 403)
+            if (expireDate > date) badRequest(res, 'Not authorized')
             next()
         }
     }

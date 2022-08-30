@@ -10,7 +10,7 @@ export { router as PostsRouter }
 
 router.post('/', authenticate(), async (req, res) => {
     const exist = await get('title', req.body.title)
-    if (exist) return badRequest(res, 'This title already exist', 400)
+    if (exist) return badRequest(res, 'This title already exist')
     const token = await getToken(
         'accessTokens',
         req.headers['authorization'].split(' ')[1]

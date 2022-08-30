@@ -9,7 +9,7 @@ export { router as UserRouter }
 
 router.post('/', async (req, res) => {
     const exist = await get('username', req.body.username)
-    if (exist != undefined) badRequest(res, 'This user already exist', 400)
+    if (exist != undefined) badRequest(res, 'This user already exist')
     else {
         const user = await create(
             req.body.username,
@@ -26,7 +26,7 @@ router.get('/', authenticate(), async (req, res) => {
 })
 
 router.get('/perfil', authenticate(), async (req, res) => {
-    if (!req.query.name) return badRequest(res, 'where is the name?', 400)
+    if (!req.query.name) return badRequest(res, 'where is the name?')
     const user = await get('username', req.query.name)
     res.status(200).json(user)
 })
@@ -36,11 +36,11 @@ router.post('/follower', authenticate(), async (req, res) => {
         'accessToken',
         req.headers['authorization'].split(' ')[1]
     )
-    if (!token) return badRequest(res, 'Something is wrong', 400)
+    if (!token) return badRequest(res, 'Something is wrong')
     const user = await get('username', req.body.user)
     const following = await get('userId', token['userId'])
     if (user['posts'].includes(token['userId']))
-        return badRequest(res, 'already following', 200)
+        return res.status(200).json({ message: 'already following' })
     following['following'].push(user['_id'])
     user['follower'].push(token['userId'])
     await getAndUpdate(
@@ -62,7 +62,7 @@ router.delete('/follower', authenticate(), async (req, res) => {
     const user = await get('username', req.body.user)
     const following = await get('userId', token['userId'])
     if (!user['posts'].includes(token['userId']))
-        return badRequest(res, 'already unfolloing', 200)
+        return res.status(200).json({ message: 'already unfollowing' })
     const indexFollowing = following['following'].indexOf(user['_id'])
     const indexUser = user['follower'].indexOf(token['userId'])
     following['following'].splice(indexFollowing, 1)
