@@ -1,5 +1,5 @@
 import express from 'express'
-import { create, get, getAll, getAllWhere } from '../database/posts.js'
+import { create, get, getAll, update } from '../database/posts.js'
 import { get as getUser } from '../database/user.js'
 import { authenticate, get as getToken } from '../database/tokens.js'
 import { badRequest } from '../methods/responses.js'
@@ -29,4 +29,18 @@ router.get('/', authenticate(), async (req, res) => {
     const name = req.query.name || ''
     const all = autoComplete(name, await getAll(), 'title')
     res.status(200).json(all)
+})
+
+router.get('/likes', authenticate(), async (req, res) => {
+    const user = await getToken(
+        'accessToken',
+        req.headers['authorization'].split(' ')[1]
+    )
+    const post = await get('title', req.query.title)
+    post['likes'].push(user['userId'])
+    const updatePost = await update(
+        { title: req.query.title },
+        { likes: post['likes'] }
+    )
+    res.status(200).json(updatePost)
 })

@@ -18,8 +18,8 @@ app.listen(3000)
 
 connect()
 
-app.use('/user', UserRouter)
+app.use('/users', UserRouter)
 
 app.use('/oauth', AuthRouter)
 
-app.use('/post', PostsRouter)
+app.use('/posts', PostsRouter)

@@ -5,6 +5,7 @@ const postSchema = new mongoose.Schema({
     username: { type: String },
     title: { type: String },
     description: { type: String },
+    likes: { type: Array, default: [] },
 })
 
 export const Posts = mongoose.model('Posts', postSchema)
@@ -30,4 +31,8 @@ export function getAllWhere(field, value) {
 
 export function getAll() {
     return Posts.find()
+}
+
+export function update(objSearch, objUpdate) {
+    return Posts.findOneAndUpdate(objSearch, objUpdate, { new: true })
 }
