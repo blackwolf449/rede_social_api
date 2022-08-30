@@ -37,6 +37,8 @@ router.get('/likes', authenticate(), async (req, res) => {
         req.headers['authorization'].split(' ')[1]
     )
     const post = await get('title', req.query.title)
+    if (post['likes'].includes(user['userId']))
+        return res.status(200).json({ message: 'already liked' })
     post['likes'].push(user['userId'])
     const updatePost = await update(
         { title: req.query.title },
