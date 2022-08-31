@@ -14,8 +14,6 @@ app.use(express.json())
 
 app.use(cors())
 
-app.listen(3000)
-
 connect()
 
 app.use('/users', UserRouter)
@@ -23,3 +21,7 @@ app.use('/users', UserRouter)
 app.use('/oauth', AuthRouter)
 
 app.use('/posts', PostsRouter)
+
+app.listen(process.env.PORT || 3000, () =>
+    console.log(process.env.PORT || 3000)
+)
