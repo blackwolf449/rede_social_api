@@ -37,12 +37,23 @@ router.get('/likes', authenticate(), async (req, res) => {
         req.headers['authorization'].split(' ')[1]
     )
     const post = await get('title', req.query.title)
-    if (post['likes'].includes(user['userId']))
-        return res.status(200).json({ message: 'already liked' })
+    if (post['likes'].includes(user['userId'])) {
+        const index = post['likes'].indexOf(user['userId'])
+        post['likes'].splice(index, 1)
+        const updatePost = await update(
+            { title: req.query.title },
+            { likes: post['likes'] }
+        )
+        res.status(200).json({
+            message: 'you dislike that',
+            updatedItem: updatePost,
+        })
+        return
+    }
     post['likes'].push(user['userId'])
     const updatePost = await update(
         { title: req.query.title },
         { likes: post['likes'] }
     )
-    res.status(200).json({ message: 'you like that' })
+    res.status(200).json({ message: 'you like that', updatedItem: updatePost })
 })
